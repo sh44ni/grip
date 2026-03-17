@@ -15,9 +15,10 @@ interface NightReviewProps {
   open: boolean;
   onClose: () => void;
   settings: Settings;
+  userId: string;
 }
 
-export function NightReview({ open, onClose, settings }: NightReviewProps) {
+export function NightReview({ open, onClose, settings, userId }: NightReviewProps) {
   const [step, setStep] = useState(0);
   const [rating, setRating] = useState<DayRating | null>(null);
   const [winTaskId, setWinTaskId] = useState<string | null>(null);
@@ -55,7 +56,7 @@ export function NightReview({ open, onClose, settings }: NightReviewProps) {
 
   const saveReview = async () => {
     haptic();
-    await createOrUpdateReview({ date: today, rating: rating || 'mid', biggestWinTaskId: winTaskId, tomorrowFocus, finalScore: score });
+    await createOrUpdateReview({ userId, date: today, rating: rating || 'mid', biggestWinTaskId: winTaskId, tomorrowFocus, finalScore: score });
     setSaved(true);
     showToast('Day closed');
     setTimeout(onClose, 3000);

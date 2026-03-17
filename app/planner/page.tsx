@@ -12,6 +12,7 @@ import { Chip } from '@/components/ui/Chip';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
+import { useUser } from '@/lib/UserContext';
 
 import type { Task, TaskCategory, TaskPriority, RepeatType, Settings, DayTemplate } from '@/lib/types';
 
@@ -28,6 +29,8 @@ export default function PlannerPage() {
   const [templateName, setTemplateName] = useState('');
   const [applyTemplateOpen, setApplyTemplateOpen] = useState(false);
   const { showToast } = useToast();
+  const { user } = useUser();
+  const userId = user?.id || 'zeeshan';
 
   const [taskName, setTaskName] = useState('');
   const [taskStart, setTaskStart] = useState('09:00');
@@ -38,10 +41,10 @@ export default function PlannerPage() {
   const [taskNotes, setTaskNotes] = useState('');
 
   const loadData = useCallback(async () => {
-    const [s, t, tmpl] = await Promise.all([getSettings(), getTasks(), getTemplates()]);
+    const [s, t, tmpl] = await Promise.all([getSettings(), getTasks(userId), getTemplates(userId)]);
     setSettings(s); setTasks(t); setTemplates(tmpl);
     setLoaded(true);
-  }, []);
+  }, [userId]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
@@ -68,7 +71,7 @@ export default function PlannerPage() {
       setTasks(tasks.map(t => t.id === editingTask.id ? updated : t));
       showToast('Task updated');
     } else {
-      const newTask = await createTask({ name: taskName, date: selectedDate, startTime: taskStart, endTime: taskEnd, category: taskCategory, priority: taskPriority, repeat: taskRepeat, notes: taskNotes, completed: false, skipped: false });
+      const newTask = await createTask({ userId, name: taskName, date: selectedDate, startTime: taskStart, endTime: taskEnd, category: taskCategory, priority: taskPriority, repeat: taskRepeat, notes: taskNotes, completed: false, skipped: false });
       setTasks([...tasks, newTask]);
       showToast('Task added');
     }
@@ -95,7 +98,7 @@ export default function PlannerPage() {
     const tomorrow = format(addDays(parseISO(selectedDate), 1), 'yyyy-MM-dd');
     const copied: Task[] = [];
     for (const t of dayTasks) {
-      const newTask = await createTask({ name: t.name, date: tomorrow, startTime: t.startTime, endTime: t.endTime, category: t.category, priority: t.priority, repeat: 'none', notes: t.notes, completed: false, skipped: false });
+      const newTask = await createTask({ userId, name: t.name, date: tomorrow, startTime: t.startTime, endTime: t.endTime, category: t.category, priority: t.priority, repeat: 'none', notes: t.notes, completed: false, skipped: false });
       copied.push(newTask);
     }
     setTasks([...tasks, ...copied]);
@@ -105,7 +108,7 @@ export default function PlannerPage() {
   const saveAsTemplate = async () => {
     if (!templateName.trim()) return;
     haptic();
-    const tmpl = await createTemplate({ name: templateName, tasks: dayTasks.map(({ name, startTime, endTime, category, priority, repeat, notes }) => ({ name, startTime, endTime, category, priority, repeat, notes })) });
+    const tmpl = await createTemplate({ name: templateName, userId, tasks: dayTasks.map(({ name, startTime, endTime, category, priority, repeat, notes }) => ({ name, startTime, endTime, category, priority, repeat, notes })) });
     setTemplates([...templates, tmpl]);
     setSaveTemplateOpen(false); setTemplateName('');
     showToast('Template saved');
@@ -116,7 +119,7 @@ export default function PlannerPage() {
     const templateTasks = tmpl.tasks as Array<{ name: string; startTime: string; endTime: string; category: TaskCategory; priority: TaskPriority; repeat: RepeatType; notes: string }>;
     const newTasks: Task[] = [];
     for (const t of templateTasks) {
-      const newTask = await createTask({ ...t, date: selectedDate, completed: false, skipped: false });
+      const newTask = await createTask({ userId, ...t, date: selectedDate, completed: false, skipped: false });
       newTasks.push(newTask);
     }
     setTasks([...tasks, ...newTasks]);

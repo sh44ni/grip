@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
-export async function GET() {
-  const reviews = await prisma.dailyReview.findMany({ orderBy: { date: 'desc' } });
+export async function GET(req: NextRequest) {
+  const userId = req.nextUrl.searchParams.get('userId') || 'zeeshan';
+  const reviews = await prisma.dailyReview.findMany({
+    where: { userId },
+    orderBy: { date: 'desc' },
+  });
   return NextResponse.json(reviews);
 }
 
@@ -10,9 +14,9 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id: _id, createdAt: _ca, ...data } = body;
-  // Upsert: one review per day
+  // Upsert: one review per user per day
   const review = await prisma.dailyReview.upsert({
-    where: { date: data.date },
+    where: { userId_date: { userId: data.userId, date: data.date } },
     update: data,
     create: data,
   });

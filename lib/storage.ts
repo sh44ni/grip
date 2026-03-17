@@ -52,8 +52,8 @@ export async function saveSettings(settings: Partial<Settings>): Promise<void> {
 // Tasks
 // ============================================================
 
-export async function getTasks(): Promise<Task[]> {
-  try { return await fetchJSON<Task[]>(`${API}/tasks`); } catch { return []; }
+export async function getTasks(userId: string = 'zeeshan'): Promise<Task[]> {
+  try { return await fetchJSON<Task[]>(`${API}/tasks?userId=${userId}`); } catch { return []; }
 }
 
 export async function saveTasks(tasks: Task[]): Promise<void> {
@@ -78,8 +78,8 @@ export async function deleteTask(id: string): Promise<void> {
 // Addictions
 // ============================================================
 
-export async function getAddictions(): Promise<Addiction[]> {
-  try { return await fetchJSON<Addiction[]>(`${API}/addictions`); } catch { return []; }
+export async function getAddictions(userId: string = 'zeeshan'): Promise<Addiction[]> {
+  try { return await fetchJSON<Addiction[]>(`${API}/addictions?userId=${userId}`); } catch { return []; }
 }
 
 export async function saveAddictions(addictions: Addiction[]): Promise<void> {
@@ -142,15 +142,15 @@ export async function deleteTransaction(id: string): Promise<void> {
 // Templates
 // ============================================================
 
-export async function getTemplates(): Promise<DayTemplate[]> {
-  try { return await fetchJSON<DayTemplate[]>(`${API}/templates`); } catch { return []; }
+export async function getTemplates(userId: string = 'zeeshan'): Promise<DayTemplate[]> {
+  try { return await fetchJSON<DayTemplate[]>(`${API}/templates?userId=${userId}`); } catch { return []; }
 }
 
 export async function saveTemplates(templates: DayTemplate[]): Promise<void> {
   void templates;
 }
 
-export async function createTemplate(template: { name: string; tasks: unknown }): Promise<DayTemplate> {
+export async function createTemplate(template: { name: string; tasks: unknown; userId: string }): Promise<DayTemplate> {
   return postJSON<DayTemplate>(`${API}/templates`, template);
 }
 
@@ -178,8 +178,8 @@ export async function createMilestone(milestone: { addictionId: string; type: st
 // Reviews
 // ============================================================
 
-export async function getReviews(): Promise<DailyReview[]> {
-  try { return await fetchJSON<DailyReview[]>(`${API}/reviews`); } catch { return []; }
+export async function getReviews(userId: string = 'zeeshan'): Promise<DailyReview[]> {
+  try { return await fetchJSON<DailyReview[]>(`${API}/reviews?userId=${userId}`); } catch { return []; }
 }
 
 export async function saveReviews(reviews: DailyReview[]): Promise<void> {

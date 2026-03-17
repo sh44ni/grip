@@ -10,6 +10,7 @@ datasource db {
 
 model Task {
   id        String   @id @default(cuid())
+  userId    String   @default("zeeshan")
   name      String
   date      String
   startTime String
@@ -23,11 +24,13 @@ model Task {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([userId])
   @@index([date])
 }
 
 model Addiction {
   id          String         @id @default(cuid())
+  userId      String         @default("zeeshan")
   name        String
   icon        String         @default("Flame")
   dailyGoal   Int            @default(5)
@@ -37,6 +40,8 @@ model Addiction {
   updatedAt   DateTime       @updatedAt
   logs        AddictionLog[]
   milestones  Milestone[]
+
+  @@index([userId])
 }
 
 model AddictionLog {
@@ -53,6 +58,7 @@ model AddictionLog {
 
 model Transaction {
   id        String   @id @default(cuid())
+  madeBy    String   @default("zeeshan")
   amount    Float
   type      String
   category  String
@@ -64,14 +70,18 @@ model Transaction {
 
   @@index([date])
   @@index([type])
+  @@index([madeBy])
 }
 
 model DayTemplate {
   id        String   @id @default(cuid())
+  userId    String   @default("zeeshan")
   name      String
   tasks     Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Milestone {
@@ -89,12 +99,15 @@ model Milestone {
 
 model DailyReview {
   id               String   @id @default(cuid())
-  date             String   @unique
+  userId           String   @default("zeeshan")
+  date             String
   rating           String
   biggestWinTaskId String?
   tomorrowFocus    String   @default("")
   finalScore       Int      @default(50)
   createdAt        DateTime @default(now())
+
+  @@unique([userId, date])
 }
 
 model Settings {

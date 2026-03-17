@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
-export async function GET() {
-  const addictions = await prisma.addiction.findMany({ orderBy: { createdAt: 'asc' } });
+export async function GET(req: NextRequest) {
+  const userId = req.nextUrl.searchParams.get('userId') || 'zeeshan';
+  const addictions = await prisma.addiction.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'asc' },
+  });
   return NextResponse.json(addictions);
 }
 
@@ -17,7 +21,6 @@ export async function POST(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   const body = await req.json();
   const { id, ...data } = body;
-  // Remove relation fields that Prisma won't accept on update
   delete data.logs;
   delete data.milestones;
   const addiction = await prisma.addiction.update({ where: { id }, data });

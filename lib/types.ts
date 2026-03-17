@@ -30,6 +30,7 @@ export type DayRating = 'good' | 'mid' | 'bad';
 
 export interface Task {
   id: string;
+  userId: string;
   name: string;
   date: string; // ISO date string YYYY-MM-DD
   startTime: string; // HH:mm
@@ -46,6 +47,7 @@ export interface Task {
 
 export interface Addiction {
   id: string;
+  userId: string;
   name: string;
   icon: string; // Lucide icon name
   dailyGoal: number;
@@ -65,6 +67,7 @@ export interface AddictionLog {
 
 export interface Transaction {
   id: string;
+  madeBy: string; // userId of who logged it
   amount: number;
   type: TransactionType;
   category: ExpenseCategory | IncomeCategory;
@@ -77,8 +80,9 @@ export interface Transaction {
 
 export interface DayTemplate {
   id: string;
+  userId: string;
   name: string;
-  tasks: Omit<Task, 'id' | 'date' | 'completed' | 'skipped' | 'createdAt' | 'updatedAt'>[];
+  tasks: Omit<Task, 'id' | 'userId' | 'date' | 'completed' | 'skipped' | 'createdAt' | 'updatedAt'>[];
   createdAt: string;
   updatedAt: string;
 }
@@ -94,6 +98,7 @@ export interface Milestone {
 
 export interface DailyReview {
   id: string;
+  userId: string;
   date: string; // YYYY-MM-DD
   rating: DayRating;
   biggestWinTaskId: string | null;

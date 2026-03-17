@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
 export async function GET(req: NextRequest) {
+  const userId = req.nextUrl.searchParams.get('userId') || 'zeeshan';
   const date = req.nextUrl.searchParams.get('date');
   const tasks = await prisma.task.findMany({
-    where: date ? { date } : undefined,
+    where: { userId, ...(date ? { date } : {}) },
     orderBy: { startTime: 'asc' },
   });
   return NextResponse.json(tasks);

@@ -19,6 +19,7 @@ import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { StreakFlame } from '@/components/ui/StreakFlame';
 import { useToast } from '@/components/ui/Toast';
+import { useUser } from '@/lib/UserContext';
 import type { Addiction, AddictionLog, Milestone } from '@/lib/types';
 
 function AddictionCard({ addiction, logs, milestones, currency, onLog, onLongPress, onEdit, onDelete, onExpand, expanded, checkMilestones }: {
@@ -128,6 +129,8 @@ export default function TrackerPage() {
   const [milestonePopup, setMilestonePopup] = useState<{ addiction: string; days: number } | null>(null);
   const [currency, setCurrency] = useState('PKR');
   const { showToast } = useToast();
+  const { user } = useUser();
+  const userId = user?.id || 'zeeshan';
   const [formName, setFormName] = useState('');
   const [formIcon, setFormIcon] = useState('Cigarette');
   const [formGoal, setFormGoal] = useState('5');
@@ -135,10 +138,10 @@ export default function TrackerPage() {
   const [formCost, setFormCost] = useState('0');
 
   const loadData = useCallback(async () => {
-    const [a, l, m, s] = await Promise.all([getAddictions(), getAddictionLogs(), getMilestones(), getSettings()]);
+    const [a, l, m, s] = await Promise.all([getAddictions(userId), getAddictionLogs(), getMilestones(), getSettings()]);
     setAddictions(a); setLogs(l); setMilestones(m); setCurrency(s.currency || 'PKR');
     setLoaded(true);
-  }, []);
+  }, [userId]);
 
   useEffect(() => { loadData(); }, [loadData]);
 
@@ -175,7 +178,7 @@ export default function TrackerPage() {
       setAddictions(addictions.map(a => a.id === editingAddiction.id ? updated : a));
       showToast('Updated');
     } else {
-      const newA = await createAddiction({ name: formName, icon: formIcon, dailyGoal: Number(formGoal) || 5, unit: formUnit || 'times', costPerUnit: Number(formCost) || 0 });
+      const newA = await createAddiction({ userId, name: formName, icon: formIcon, dailyGoal: Number(formGoal) || 5, unit: formUnit || 'times', costPerUnit: Number(formCost) || 0 });
       setAddictions([...addictions, newA]);
       showToast('Addiction added');
     }

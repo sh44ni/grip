@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
 export async function GET() {
+  // Joint account — return ALL transactions for both users
   const txs = await prisma.transaction.findMany({ orderBy: { date: 'desc' } });
   return NextResponse.json(txs);
 }

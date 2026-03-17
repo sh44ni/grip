@@ -12,6 +12,7 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { GripLogo } from '@/components/ui/GripLogo';
 import { useToast } from '@/components/ui/Toast';
 import { getDaysOnGrip } from '@/lib/utils';
+import { useUser } from '@/lib/UserContext';
 import type { Settings } from '@/lib/types';
 import { DEFAULT_SETTINGS } from '@/lib/constants';
 
@@ -23,6 +24,7 @@ export default function SettingsPage() {
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [storageUsed, setStorageUsed] = useState('0 KB');
   const { showToast } = useToast();
+  const { user, logout } = useUser();
 
   useEffect(() => {
     (async () => {
@@ -94,7 +96,20 @@ export default function SettingsPage() {
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-5 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground">Settings</h1>
-        <GripLogo compact className="opacity-40" />
+        <div className="flex items-center gap-3">
+          {user && (
+            <div className="flex items-center gap-2">
+              <div
+                className="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-white"
+                style={{ backgroundColor: user.color }}
+              >
+                {user.initial}
+              </div>
+              <span className="text-sm font-medium text-foreground">{user.name}</span>
+            </div>
+          )}
+          <GripLogo compact className="opacity-40" />
+        </div>
       </div>
 
       {/* Profile */}
@@ -225,6 +240,19 @@ export default function SettingsPage() {
         <div className="space-y-2">
           <div className="flex justify-between"><span className="text-sm text-muted">Version</span><span className="text-sm text-foreground">2.0.0</span></div>
           <div className="flex justify-between"><span className="text-sm text-muted">Built by</span><span className="text-sm text-foreground">projekts.pk</span></div>
+        </div>
+      </Section>
+
+      {/* Switch User */}
+      <Section title="Account" icon={<Shield size={18} />}>
+        <div className="flex items-center justify-between py-1">
+          <div>
+            <p className="text-sm text-foreground font-medium">Signed in as <span style={{ color: user?.color }}>{user?.name}</span></p>
+            <p className="text-xs text-muted mt-0.5">Switch to a different user profile</p>
+          </div>
+          <button onClick={logout} className="pressable px-4 py-2 rounded-xl bg-surface-2 text-sm font-medium text-foreground">
+            Switch
+          </button>
         </div>
       </Section>
 

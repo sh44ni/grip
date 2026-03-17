@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 
-export async function GET() {
-  const templates = await prisma.dayTemplate.findMany({ orderBy: { createdAt: 'desc' } });
+export async function GET(req: NextRequest) {
+  const userId = req.nextUrl.searchParams.get('userId') || 'zeeshan';
+  const templates = await prisma.dayTemplate.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+  });
   return NextResponse.json(templates);
 }
 
