@@ -118,14 +118,17 @@ export function getAddictionCountForDate(addictionId: string, logs: AddictionLog
 }
 
 export function getCurrentStreak(addictionId: string, logs: AddictionLog[]): number {
+  const relevantLogs = logs.filter(l => l.addictionId === addictionId);
+  
+  // No logs at all = just added, streak is 0
+  if (relevantLogs.length === 0) return 0;
+
   let streak = 0;
   let checkDate = subDays(new Date(), 1);
 
   while (true) {
     const dateStr = format(checkDate, 'yyyy-MM-dd');
-    const hasLogs = logs.some(
-      (l) => l.addictionId === addictionId && l.timestamp.startsWith(dateStr)
-    );
+    const hasLogs = relevantLogs.some(l => l.timestamp.startsWith(dateStr));
     if (hasLogs) break;
     streak++;
     checkDate = subDays(checkDate, 1);
@@ -137,6 +140,7 @@ export function getCurrentStreak(addictionId: string, logs: AddictionLog[]): num
 
   return streak;
 }
+
 
 export function getBestStreak(addictionId: string, logs: AddictionLog[]): number {
   const relevantLogs = logs
