@@ -229,8 +229,9 @@ export function calculateDailyScore(
   logs: AddictionLog[],
   transactions: Transaction[],
   addictions: Addiction[],
+  targetDate?: string,
 ): ScoreBreakdown {
-  const today = todayISO();
+  const today = targetDate ?? todayISO();
   const todayTasks = tasks.filter((t) => t.date === today);
   const completedTasks = todayTasks.filter((t) => t.completed);
   const todayLogs = logs.filter((l) => l.timestamp.startsWith(today));
@@ -291,19 +292,8 @@ export function getWeeklyAvgScore(
   const scores: number[] = [];
   for (let i = 0; i < 7; i++) {
     const d = format(subDays(new Date(), i + weeksAgo * 7), 'yyyy-MM-dd');
-    const dayTasks = tasks.filter((t) => t.date === d);
-    const dayLogs = logs.filter((l) => l.timestamp.startsWith(d));
-    const dayTx = transactions.filter((t) => t.date === d);
-    const hasData = dayTasks.length > 0 || dayLogs.length > 0 || dayTx.length > 0;
-    if (hasData) {
-      const result = calculateDailyScore(
-        tasks.map(t => ({ ...t, date: t.date === d ? todayISO() : 'x' })),
-        dayLogs.map(l => ({ ...l, timestamp: todayISO() + l.timestamp.substring(10) })),
-        dayTx.map(t => ({ ...t, date: todayISO() })),
-        addictions,
-      );
-      if (result.hasData) scores.push(result.score);
-    }
+    const result = calculateDailyScore(tasks, logs, transactions, addictions, d);
+    if (result.hasData) scores.push(result.score);
   }
   if (scores.length === 0) return -1;
   return Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);

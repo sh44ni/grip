@@ -1,5 +1,7 @@
 'use client';
 
+import React from 'react';
+
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format, subDays, parseISO, startOfMonth, endOfMonth, subMonths, addMonths } from 'date-fns';
@@ -20,7 +22,6 @@ import { EmptyState } from '@/components/ui/EmptyState';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useToast } from '@/components/ui/Toast';
-import { nanoid } from 'nanoid';
 import type { Transaction, TransactionType, TransactionTag, ExpenseCategory, IncomeCategory, Settings } from '@/lib/types';
 
 export default function MoneyPage() {
@@ -99,7 +100,7 @@ export default function MoneyPage() {
   const addTransaction = async () => {
     if (!amount || Number(amount) <= 0) return;
     haptic();
-    const newTx = await createTransaction({ id: nanoid(), amount: Number(amount), type: txType, category, tag: txType === 'income' ? 'useful' : tag, note, date: txDate });
+    const newTx = await createTransaction({ amount: Number(amount), type: txType, category, tag: txType === 'income' ? 'useful' : tag, note, date: txDate });
     setTransactions([...transactions, newTx]);
     setFormOpen(false);
     setAmount('');

@@ -62,7 +62,7 @@ export async function saveTasks(tasks: Task[]): Promise<void> {
   void tasks; // handled by individual create/update calls
 }
 
-export async function createTask(task: Omit<Task, 'createdAt' | 'updatedAt'>): Promise<Task> {
+export async function createTask(task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }): Promise<Task> {
   return postJSON<Task>(`${API}/tasks`, task);
 }
 
@@ -86,7 +86,7 @@ export async function saveAddictions(addictions: Addiction[]): Promise<void> {
   void addictions;
 }
 
-export async function createAddiction(addiction: Omit<Addiction, 'createdAt' | 'updatedAt'>): Promise<Addiction> {
+export async function createAddiction(addiction: Omit<Addiction, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }): Promise<Addiction> {
   return postJSON<Addiction>(`${API}/addictions`, addiction);
 }
 
@@ -130,7 +130,7 @@ export async function saveTransactions(transactions: Transaction[]): Promise<voi
   void transactions;
 }
 
-export async function createTransaction(tx: Omit<Transaction, 'createdAt' | 'updatedAt'>): Promise<Transaction> {
+export async function createTransaction(tx: Omit<Transaction, 'id' | 'createdAt' | 'updatedAt'> & { id?: string }): Promise<Transaction> {
   return postJSON<Transaction>(`${API}/transactions`, tx);
 }
 
@@ -186,7 +186,7 @@ export async function saveReviews(reviews: DailyReview[]): Promise<void> {
   void reviews;
 }
 
-export async function createOrUpdateReview(review: Omit<DailyReview, 'createdAt'>): Promise<DailyReview> {
+export async function createOrUpdateReview(review: Omit<DailyReview, 'createdAt' | 'id'> & { id?: string }): Promise<DailyReview> {
   return postJSON<DailyReview>(`${API}/reviews`, review);
 }
 
@@ -225,6 +225,7 @@ export async function clearAllData(): Promise<void> {
   for (const a of addictions) await deleteAddiction(a.id).catch(() => {}); // cascades logs + milestones
   for (const t of transactions) await deleteTransaction(t.id).catch(() => {});
   for (const t of templates) await deleteTemplate(t.id).catch(() => {});
+  for (const r of reviews) await deleteAPI(`${API}/reviews?id=${r.id}`).catch(() => {});
 }
 
 // ============================================================

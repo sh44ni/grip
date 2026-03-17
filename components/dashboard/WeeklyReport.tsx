@@ -115,7 +115,7 @@ export function WeeklyReport({ open, onClose }: WeeklyReportProps) {
               <p className={`text-lg font-bold ${thisWeek.totalSaved >= 0 ? 'text-accent' : 'text-danger'}`}>{formatCurrency(thisWeek.totalSaved, currency)}</p>
             </div>
             <div className="bg-surface rounded-xl p-4">
-              <div className="flex items-center justify-between mb-2"><div className="flex items-center gap-2"><Target size={14} className="text-danger" /><span className="text-xs text-muted">Wasted</span></div><TrendArrow curr={lastWeek.totalWasted} prev={thisWeek.totalWasted} /></div>
+              <div className="flex items-center justify-between mb-2"><div className="flex items-center gap-2"><Target size={14} className="text-danger" /><span className="text-xs text-muted">Wasted</span></div><TrendArrow curr={thisWeek.totalWasted} prev={lastWeek.totalWasted} /></div>
               <p className="text-lg font-bold text-danger">{formatCurrency(thisWeek.totalWasted, currency)}</p>
             </div>
           </div>

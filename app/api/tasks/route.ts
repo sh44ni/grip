@@ -12,7 +12,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const task = await prisma.task.create({ data: body });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id: _id, createdAt: _ca, updatedAt: _ua, ...data } = body;
+  const task = await prisma.task.create({ data });
   return NextResponse.json(task, { status: 201 });
 }
 

@@ -8,7 +8,9 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const log = await prisma.addictionLog.create({ data: body });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id: _id, createdAt: _ca, ...data } = body;
+  const log = await prisma.addictionLog.create({ data });
   return NextResponse.json(log, { status: 201 });
 }
 

@@ -1,5 +1,7 @@
 'use client';
 
+import React from 'react';
+
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format, subDays, parseISO } from 'date-fns';
@@ -17,7 +19,6 @@ import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { StreakFlame } from '@/components/ui/StreakFlame';
 import { useToast } from '@/components/ui/Toast';
-import { nanoid } from 'nanoid';
 import type { Addiction, AddictionLog, Milestone } from '@/lib/types';
 
 function AddictionCard({ addiction, logs, milestones, currency, onLog, onLongPress, onEdit, onDelete, onExpand, expanded, checkMilestones }: {
@@ -174,7 +175,7 @@ export default function TrackerPage() {
       setAddictions(addictions.map(a => a.id === editingAddiction.id ? updated : a));
       showToast('Updated');
     } else {
-      const newA = await createAddiction({ id: nanoid(), name: formName, icon: formIcon, dailyGoal: Number(formGoal) || 5, unit: formUnit || 'times', costPerUnit: Number(formCost) || 0 });
+      const newA = await createAddiction({ name: formName, icon: formIcon, dailyGoal: Number(formGoal) || 5, unit: formUnit || 'times', costPerUnit: Number(formCost) || 0 });
       setAddictions([...addictions, newA]);
       showToast('Addiction added');
     }

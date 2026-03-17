@@ -8,7 +8,9 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const template = await prisma.dayTemplate.create({ data: body });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { id: _id, createdAt: _ca, updatedAt: _ua, ...data } = body;
+  const template = await prisma.dayTemplate.create({ data });
   return NextResponse.json(template, { status: 201 });
 }
 

@@ -55,7 +55,7 @@ export function NightReview({ open, onClose, settings }: NightReviewProps) {
 
   const saveReview = async () => {
     haptic();
-    await createOrUpdateReview({ id: `review-${today}`, date: today, rating: rating || 'mid', biggestWinTaskId: winTaskId, tomorrowFocus, finalScore: score });
+    await createOrUpdateReview({ date: today, rating: rating || 'mid', biggestWinTaskId: winTaskId, tomorrowFocus, finalScore: score });
     setSaved(true);
     showToast('Day closed');
     setTimeout(onClose, 3000);

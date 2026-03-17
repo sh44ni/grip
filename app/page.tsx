@@ -1,5 +1,7 @@
 'use client';
 
+import React from 'react';
+
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
@@ -22,7 +24,7 @@ import { StreakFlame } from '@/components/ui/StreakFlame';
 import { NightReview } from '@/components/dashboard/NightReview';
 import { WeeklyReport } from '@/components/dashboard/WeeklyReport';
 import { CATEGORY_COLORS, TASK_CATEGORIES, EXPENSE_CATEGORIES, INCOME_CATEGORIES, WAR_MESSAGES } from '@/lib/constants';
-import { nanoid } from 'nanoid';
+
 import type { Task, Addiction, AddictionLog, Transaction, Settings, TaskCategory, TaskPriority, TransactionType, TransactionTag, ExpenseCategory, IncomeCategory, DailyReview } from '@/lib/types';
 
 export default function DashboardPage() {
@@ -100,7 +102,7 @@ export default function DashboardPage() {
 
   const rescheduleGhost = async (ghost: Task) => {
     haptic();
-    const newTask = await createTask({ id: nanoid(), name: ghost.name, date: today, startTime: ghost.startTime, endTime: ghost.endTime, category: ghost.category, priority: ghost.priority, repeat: 'none', notes: ghost.notes, completed: false, skipped: false });
+    const newTask = await createTask({ name: ghost.name, date: today, startTime: ghost.startTime, endTime: ghost.endTime, category: ghost.category, priority: ghost.priority, repeat: 'none', notes: ghost.notes, completed: false, skipped: false });
     setTasks([...tasks, newTask]);
     showToast('Rescheduled to today');
   };
@@ -116,7 +118,7 @@ export default function DashboardPage() {
 
   const addTask = async () => {
     if (!taskName.trim()) return;
-    const newTask = await createTask({ id: nanoid(), name: taskName, date: today, startTime: taskStart, endTime: taskEnd, category: taskCategory, priority: taskPriority, repeat: 'none', notes: '', completed: false, skipped: false });
+    const newTask = await createTask({ name: taskName, date: today, startTime: taskStart, endTime: taskEnd, category: taskCategory, priority: taskPriority, repeat: 'none', notes: '', completed: false, skipped: false });
     setTasks([...tasks, newTask]);
     setTaskSheetOpen(false);
     setTaskName('');
@@ -125,7 +127,7 @@ export default function DashboardPage() {
 
   const addExpense = async () => {
     if (!expenseAmount) return;
-    const newTx = await createTransaction({ id: nanoid(), amount: Number(expenseAmount), type: expenseType, category: expenseCategory, tag: expenseTag, note: expenseNote, date: today });
+    const newTx = await createTransaction({ amount: Number(expenseAmount), type: expenseType, category: expenseCategory, tag: expenseTag, note: expenseNote, date: today });
     setTransactions([...transactions, newTx]);
     setExpenseSheetOpen(false);
     setExpenseAmount('');
