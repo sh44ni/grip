@@ -84,9 +84,6 @@ export default function DashboardPage() {
   });
   const todayFocus = yesterdayReview?.tomorrowFocus || '';
 
-  const currentHour = new Date().getHours();
-  const sleepHour = settings ? parseInt(settings.sleepTime.split(':')[0]) : 23;
-  const showNightReviewBtn = currentHour >= Math.max(sleepHour - 2, 18);
   const todayReviewDone = reviews.some(r => r.date === today);
   const isReportDay = new Date().getDay() === (settings?.weeklyReportDay ?? 0);
   const isDayEmpty = todayTasks.length === 0 && addictions.length === 0 && todayExpenses.length === 0 && !scoreResult.hasData;
@@ -284,7 +281,7 @@ export default function DashboardPage() {
           </button>
         )}
 
-        {showNightReviewBtn && !todayReviewDone && (
+        {!todayReviewDone && (
           <button onClick={() => { haptic(); setNightReviewOpen(true); }}
             className="pressable w-full py-4 rounded-xl bg-surface border border-accent/20 flex items-center justify-center gap-3">
             <Moon size={18} className="text-accent" /><span className="text-sm font-semibold text-accent">Close your day</span>
