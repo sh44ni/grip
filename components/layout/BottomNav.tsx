@@ -16,7 +16,7 @@ const NAV_ITEMS = [
 
 export function BottomNav() {
   const pathname = usePathname();
-  const { user } = useUser();
+  const { user, avatar } = useUser();
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 flex justify-center">
@@ -52,12 +52,12 @@ export function BottomNav() {
           })}
 
           {/* User avatar floating in corner */}
-          {user && (
+          {user && avatar && (
             <div
-              className="absolute right-3 top-2 w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
-              style={{ backgroundColor: user.color }}
+              className="absolute right-3 top-2 w-7 h-7 rounded-full flex items-center justify-center text-base"
+              style={{ backgroundColor: avatar.color + '20', border: `1.5px solid ${avatar.color}40` }}
             >
-              {user.initial}
+              {avatar.emoji}
             </div>
           )}
         </div>

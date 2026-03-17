@@ -1,36 +1,36 @@
 'use client';
 
 import React from 'react';
-import { getUserById } from '@/lib/users';
+import { loadAvatar } from '@/lib/UserContext';
 
 interface UserBadgeProps {
   userId: string;
   size?: 'sm' | 'md' | 'lg';
   showName?: boolean;
   className?: string;
+  name?: string;
 }
 
-export function UserBadge({ userId, size = 'sm', showName = false, className = '' }: UserBadgeProps) {
-  const user = getUserById(userId);
-  if (!user) return null;
+export function UserBadge({ userId, size = 'sm', showName = false, name, className = '' }: UserBadgeProps) {
+  const avatar = loadAvatar(userId);
 
   const sizeMap = {
-    sm: 'w-6 h-6 text-[10px]',
-    md: 'w-8 h-8 text-xs',
-    lg: 'w-10 h-10 text-sm',
+    sm: 'w-6 h-6 text-xs',
+    md: 'w-8 h-8 text-sm',
+    lg: 'w-10 h-10 text-base',
   };
 
   return (
     <div className={`inline-flex items-center gap-1.5 ${className}`}>
       <div
-        className={`${sizeMap[size]} rounded-full flex items-center justify-center font-bold text-white shrink-0`}
-        style={{ backgroundColor: user.color }}
+        className={`${sizeMap[size]} rounded-full flex items-center justify-center shrink-0`}
+        style={{ backgroundColor: avatar.color + '30', border: `1.5px solid ${avatar.color}40` }}
       >
-        {user.initial}
+        <span style={{ lineHeight: 1 }}>{avatar.emoji}</span>
       </div>
-      {showName && (
-        <span className="text-xs font-medium" style={{ color: user.color }}>
-          {user.name}
+      {showName && name && (
+        <span className="text-xs font-medium" style={{ color: avatar.color }}>
+          {name}
         </span>
       )}
     </div>

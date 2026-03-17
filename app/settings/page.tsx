@@ -13,10 +13,25 @@ import { GripLogo } from '@/components/ui/GripLogo';
 import { useToast } from '@/components/ui/Toast';
 import { getDaysOnGrip } from '@/lib/utils';
 import { useUser } from '@/lib/UserContext';
+import { saveAvatar } from '@/lib/UserContext';
+import type { AvatarConfig } from '@/lib/UserContext';
+import { BottomSheet } from '@/components/ui/BottomSheet';
 import type { Settings } from '@/lib/types';
 import { DEFAULT_SETTINGS } from '@/lib/constants';
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+const EMOJI_OPTIONS = [
+  '👨','👩','🧔','👱','🧑','👦','👧',
+  '🦸','🦹','🧙','🧝','🧛','🤴','👸',
+  '🐻','🦊','🐺','🐯','🦁','🐼','🐸',
+  '🚀','⚡','🔥','💎','👑','🎯','🌙',
+];
+const COLOR_OPTIONS = [
+  '#14B8A6','#A855F7','#3B82F6','#F59E0B',
+  '#EF4444','#10B981','#F97316','#EC4899',
+  '#8B5CF6','#06B6D4','#84CC16','#E11D48',
+];
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
@@ -24,7 +39,9 @@ export default function SettingsPage() {
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [storageUsed, setStorageUsed] = useState('0 KB');
   const { showToast } = useToast();
-  const { user, logout } = useUser();
+  const { user, avatar, logout, updateAvatar } = useUser();
+  const [avatarSheetOpen, setAvatarSheetOpen] = useState(false);
+  const [draftAvatar, setDraftAvatar] = useState<AvatarConfig>({ emoji: '👨', color: '#14B8A6' });
 
   useEffect(() => {
     (async () => {
@@ -97,14 +114,15 @@ export default function SettingsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-foreground">Settings</h1>
         <div className="flex items-center gap-3">
-          {user && (
+          {user && avatar && (
             <div className="flex items-center gap-2">
-              <div
-                className="w-8 h-8 rounded-xl flex items-center justify-center text-sm font-bold text-white"
-                style={{ backgroundColor: user.color }}
+              <button
+                onClick={() => { setDraftAvatar(avatar); setAvatarSheetOpen(true); }}
+                className="pressable w-9 h-9 rounded-xl flex items-center justify-center text-xl"
+                style={{ backgroundColor: avatar.color + '20', border: `1.5px solid ${avatar.color}40` }}
               >
-                {user.initial}
-              </div>
+                {avatar.emoji}
+              </button>
               <span className="text-sm font-medium text-foreground">{user.name}</span>
             </div>
           )}
@@ -247,12 +265,17 @@ export default function SettingsPage() {
       <Section title="Account" icon={<Shield size={18} />}>
         <div className="flex items-center justify-between py-1">
           <div>
-            <p className="text-sm text-foreground font-medium">Signed in as <span style={{ color: user?.color }}>{user?.name}</span></p>
+            <p className="text-sm text-foreground font-medium">Signed in as <span style={{ color: avatar?.color }}>{user?.name}</span></p>
             <p className="text-xs text-muted mt-0.5">Switch to a different user profile</p>
           </div>
-          <button onClick={logout} className="pressable px-4 py-2 rounded-xl bg-surface-2 text-sm font-medium text-foreground">
-            Switch
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => { if (avatar) { setDraftAvatar(avatar); setAvatarSheetOpen(true); } }} className="pressable px-3 py-2 rounded-xl bg-surface-2 text-xs font-medium text-muted">
+              Edit Avatar
+            </button>
+            <button onClick={logout} className="pressable px-4 py-2 rounded-xl bg-surface-2 text-sm font-medium text-foreground">
+              Switch
+            </button>
+          </div>
         </div>
       </Section>
 
@@ -261,6 +284,50 @@ export default function SettingsPage() {
       <ConfirmDialog open={clearDialogOpen} onClose={() => setClearDialogOpen(false)} onConfirm={handleClear}
         title="Clear All Data" message="Are you sure? This cannot be undone. All tasks, addictions, transactions, and settings will be permanently deleted."
         confirmLabel="Clear Everything" danger />
+
+      {/* Avatar Picker Sheet */}
+      <BottomSheet open={avatarSheetOpen} onClose={() => setAvatarSheetOpen(false)} title="Edit Your Avatar">
+        <div className="space-y-5">
+          {/* Preview */}
+          <div className="flex justify-center">
+            <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl"
+              style={{ backgroundColor: draftAvatar.color + '25', border: `2px solid ${draftAvatar.color}50` }}>
+              {draftAvatar.emoji}
+            </div>
+          </div>
+          {/* Emoji */}
+          <div>
+            <p className="text-xs text-muted mb-2 uppercase tracking-wider">Emoji</p>
+            <div className="grid grid-cols-7 gap-2">
+              {EMOJI_OPTIONS.map(e => (
+                <button key={e} onClick={() => setDraftAvatar(d => ({ ...d, emoji: e }))}
+                  className={`pressable w-10 h-10 rounded-xl flex items-center justify-center text-xl ${
+                    draftAvatar.emoji === e ? 'ring-2 ring-accent bg-accent/10' : 'bg-surface-2'
+                  }`}>
+                  {e}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Color */}
+          <div>
+            <p className="text-xs text-muted mb-2 uppercase tracking-wider">Color</p>
+            <div className="grid grid-cols-6 gap-2">
+              {COLOR_OPTIONS.map(c => (
+                <button key={c} onClick={() => setDraftAvatar(d => ({ ...d, color: c }))}
+                  className="pressable w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{ backgroundColor: c }}>
+                  {draftAvatar.color === c && <span className="text-white text-base">✓</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button onClick={() => { updateAvatar(draftAvatar); setAvatarSheetOpen(false); showToast('Avatar updated'); }}
+            className="pressable w-full py-3.5 rounded-xl bg-accent text-white font-semibold text-sm">
+            Save Avatar
+          </button>
+        </div>
+      </BottomSheet>
     </motion.div>
   );
 }
