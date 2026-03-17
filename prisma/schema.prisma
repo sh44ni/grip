@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Task {
+  id        String   @id @default(cuid())
+  name      String
+  date      String
+  startTime String
+  endTime   String
+  category  String   @default("work")
+  priority  String   @default("medium")
+  repeat    String   @default("none")
+  notes     String   @default("")
+  completed Boolean  @default(false)
+  skipped   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+}
+
+model Addiction {
+  id          String         @id @default(cuid())
+  name        String
+  icon        String         @default("Flame")
+  dailyGoal   Int            @default(5)
+  unit        String         @default("times")
+  costPerUnit Float          @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  logs        AddictionLog[]
+  milestones  Milestone[]
+}
+
+model AddictionLog {
+  id           String    @id @default(cuid())
+  addictionId  String
+  addiction    Addiction  @relation(fields: [addictionId], references: [id], onDelete: Cascade)
+  timestamp    DateTime  @default(now())
+  note         String    @default("")
+  createdAt    DateTime  @default(now())
+
+  @@index([addictionId])
+  @@index([timestamp])
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  amount    Float
+  type      String
+  category  String
+  tag       String   @default("necessary")
+  note      String   @default("")
+  date      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([date])
+  @@index([type])
+}
+
+model DayTemplate {
+  id        String   @id @default(cuid())
+  name      String
+  tasks     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Milestone {
+  id           String    @id @default(cuid())
+  addictionId  String
+  addiction    Addiction  @relation(fields: [addictionId], references: [id], onDelete: Cascade)
+  type         String    @default("clean_days")
+  days         Int
+  achievedAt   DateTime  @default(now())
+  seen         Boolean   @default(false)
+
+  @@unique([addictionId, days])
+  @@index([addictionId])
+}
+
+model DailyReview {
+  id               String   @id @default(cuid())
+  date             String   @unique
+  rating           String
+  biggestWinTaskId String?
+  tomorrowFocus    String   @default("")
+  finalScore       Int      @default(50)
+  createdAt        DateTime @default(now())
+}
+
+model Settings {
+  id                      String  @id @default("default")
+  name                    String  @default("")
+  wakeTime                String  @default("07:00")
+  sleepTime               String  @default("23:00")
+  slotDuration            Int     @default(30)
+  weekStartDay            Int     @default(1)
+  currency                String  @default("PKR")
+  monthlyIncomeTarget     Float   @default(0)
+  savingsGoal             Float   @default(0)
+  theme                   String  @default("dark")
+  avgMealCost             Float   @default(500)
+  monthlySubscriptionCost Float   @default(1200)
+  dailyFuelCost           Float   @default(800)
+  weeklyReportDay         Int     @default(0)
+  lastExportDate          String?
+  firstUseDate            String?
+}
