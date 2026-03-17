@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   User, Clock, Calendar, DollarSign, Palette,
   Download, Upload, Trash2, Info, ChevronRight,
-  Save, Moon, Skull, Swords, Database, Shield,
+  Save, Moon, Skull, Swords, Database, Shield, Camera, X,
 } from 'lucide-react';
 import { getSettings, saveSettings, exportAllData, importAllData, clearAllData, getStorageUsed } from '@/lib/storage';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -21,12 +21,6 @@ import { DEFAULT_SETTINGS } from '@/lib/constants';
 
 const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-const EMOJI_OPTIONS = [
-  '👨','👩','🧔','👱','🧑','👦','👧',
-  '🦸','🦹','🧙','🧝','🧛','🤴','👸',
-  '🐻','🦊','🐺','🐯','🦁','🐼','🐸',
-  '🚀','⚡','🔥','💎','👑','🎯','🌙',
-];
 const COLOR_OPTIONS = [
   '#14B8A6','#A855F7','#3B82F6','#F59E0B',
   '#EF4444','#10B981','#F97316','#EC4899',
@@ -41,7 +35,8 @@ export default function SettingsPage() {
   const { showToast } = useToast();
   const { user, avatar, logout, updateAvatar } = useUser();
   const [avatarSheetOpen, setAvatarSheetOpen] = useState(false);
-  const [draftAvatar, setDraftAvatar] = useState<AvatarConfig>({ emoji: '👨', color: '#14B8A6' });
+  const [draftAvatar, setDraftAvatar] = useState<AvatarConfig>({ color: '#14B8A6' });
+  const avatarFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     (async () => {
@@ -117,11 +112,14 @@ export default function SettingsPage() {
           {user && avatar && (
             <div className="flex items-center gap-2">
               <button
-                onClick={() => { setDraftAvatar(avatar); setAvatarSheetOpen(true); }}
-                className="pressable w-9 h-9 rounded-xl flex items-center justify-center text-xl"
-                style={{ backgroundColor: avatar.color + '20', border: `1.5px solid ${avatar.color}40` }}
+                onClick={() => { if (avatar) { setDraftAvatar(avatar); setAvatarSheetOpen(true); } }}
+                className="pressable w-9 h-9 rounded-2xl overflow-hidden flex items-center justify-center font-bold text-white text-lg"
+                style={avatar.photo ? {} : { backgroundColor: avatar.color }}
               >
-                {avatar.emoji}
+                {avatar.photo
+                  ? <img src={avatar.photo} alt={user.name} className="w-full h-full object-cover" />
+                  : user.initial
+                }
               </button>
               <span className="text-sm font-medium text-foreground">{user.name}</span>
             </div>
@@ -286,43 +284,60 @@ export default function SettingsPage() {
         confirmLabel="Clear Everything" danger />
 
       {/* Avatar Picker Sheet */}
-      <BottomSheet open={avatarSheetOpen} onClose={() => setAvatarSheetOpen(false)} title="Edit Your Avatar">
+      <input ref={avatarFileRef} type="file" accept="image/*" className="hidden"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => setDraftAvatar(d => ({ ...d, photo: ev.target?.result as string }));
+          reader.readAsDataURL(file);
+        }}
+      />
+      <BottomSheet open={avatarSheetOpen} onClose={() => setAvatarSheetOpen(false)} title="Edit Avatar">
         <div className="space-y-5">
           {/* Preview */}
           <div className="flex justify-center">
-            <div className="w-20 h-20 rounded-2xl flex items-center justify-center text-4xl"
-              style={{ backgroundColor: draftAvatar.color + '25', border: `2px solid ${draftAvatar.color}50` }}>
-              {draftAvatar.emoji}
+            <div
+              className="w-24 h-24 rounded-2xl overflow-hidden flex items-center justify-center font-bold text-white text-3xl"
+              style={draftAvatar.photo ? {} : { backgroundColor: draftAvatar.color }}
+            >
+              {draftAvatar.photo
+                ? <img src={draftAvatar.photo} alt="preview" className="w-full h-full object-cover" />
+                : <span>{user?.initial}</span>
+              }
             </div>
           </div>
-          {/* Emoji */}
+
+          {/* Photo upload */}
+          <button onClick={() => avatarFileRef.current?.click()}
+            className="pressable flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-surface border border-border text-sm font-medium text-foreground">
+            <Camera size={18} className="text-accent" />
+            {draftAvatar.photo ? 'Change Photo' : 'Upload Photo'}
+          </button>
+
+          {draftAvatar.photo && (
+            <button onClick={() => setDraftAvatar(d => ({ ...d, photo: undefined }))}
+              className="pressable flex items-center justify-center gap-1.5 w-full text-xs text-danger">
+              <X size={12} /> Remove photo
+            </button>
+          )}
+
+          {/* Accent color */}
           <div>
-            <p className="text-xs text-muted mb-2 uppercase tracking-wider">Emoji</p>
-            <div className="grid grid-cols-7 gap-2">
-              {EMOJI_OPTIONS.map(e => (
-                <button key={e} onClick={() => setDraftAvatar(d => ({ ...d, emoji: e }))}
-                  className={`pressable w-10 h-10 rounded-xl flex items-center justify-center text-xl ${
-                    draftAvatar.emoji === e ? 'ring-2 ring-accent bg-accent/10' : 'bg-surface-2'
-                  }`}>
-                  {e}
-                </button>
-              ))}
-            </div>
-          </div>
-          {/* Color */}
-          <div>
-            <p className="text-xs text-muted mb-2 uppercase tracking-wider">Color</p>
+            <p className="text-xs text-muted mb-2 uppercase tracking-wider">Accent color</p>
             <div className="grid grid-cols-6 gap-2">
               {COLOR_OPTIONS.map(c => (
                 <button key={c} onClick={() => setDraftAvatar(d => ({ ...d, color: c }))}
                   className="pressable w-10 h-10 rounded-xl flex items-center justify-center"
                   style={{ backgroundColor: c }}>
-                  {draftAvatar.color === c && <span className="text-white text-base">✓</span>}
+                  {draftAvatar.color === c && <span className="text-white font-bold text-base">✓</span>}
                 </button>
               ))}
             </div>
           </div>
-          <button onClick={() => { updateAvatar(draftAvatar); setAvatarSheetOpen(false); showToast('Avatar updated'); }}
+
+          <button
+            onClick={() => { updateAvatar(draftAvatar); setAvatarSheetOpen(false); showToast('Avatar updated'); }}
             className="pressable w-full py-3.5 rounded-xl bg-accent text-white font-semibold text-sm">
             Save Avatar
           </button>

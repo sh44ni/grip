@@ -5,13 +5,13 @@ import type { AppUser } from './users';
 import { USERS, getUserById, USER_STORAGE_KEY } from './users';
 
 export interface AvatarConfig {
-  emoji: string;
+  photo?: string; // base64 data URL
   color: string;
 }
 
 const DEFAULT_AVATARS: Record<string, AvatarConfig> = {
-  zeeshan: { emoji: '👨', color: '#14B8A6' },
-  maryam:  { emoji: '👩', color: '#A855F7' },
+  zeeshan: { color: '#14B8A6' },
+  maryam:  { color: '#A855F7' },
 };
 
 function avatarKey(userId: string) { return `grip_avatar_${userId}`; }

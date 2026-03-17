@@ -54,10 +54,13 @@ export function BottomNav() {
           {/* User avatar floating in corner */}
           {user && avatar && (
             <div
-              className="absolute right-3 top-2 w-7 h-7 rounded-full flex items-center justify-center text-base"
-              style={{ backgroundColor: avatar.color + '20', border: `1.5px solid ${avatar.color}40` }}
+              className="absolute right-3 top-2 w-7 h-7 rounded-full overflow-hidden flex items-center justify-center text-[10px] font-bold text-white"
+              style={avatar.photo ? {} : { backgroundColor: avatar.color }}
             >
-              {avatar.emoji}
+              {avatar.photo
+                ? <img src={avatar.photo} alt={user.name} className="w-full h-full object-cover" />
+                : user.initial
+              }
             </div>
           )}
         </div>
